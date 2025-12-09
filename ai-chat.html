@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI对话</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/ai-chat.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+    <div class="mini-program-container">
+        <!-- 导航栏 -->
+        <div class="nav-bar">
+            <div class="nav-title">AI对话助手</div>
+            <div class="nav-right">
+                <button id="clearChatBtn" class="nav-btn">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 聊天容器 -->
+        <div class="chat-container">
+            <div class="messages-container" id="messagesContainer">
+                <!-- AI欢迎消息 -->
+                <div class="message ai-message">
+                    <div class="message-content">
+                        <div class="message-text">
+                            没事哒没事哒没事哒QAQ
+                        </div>
+                        <div class="message-time">
+                            <span id="aiWelcomeTime"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 输入区域 -->
+            <div class="input-container">
+                <textarea 
+                    id="userInput" 
+                    class="user-input" 
+                    placeholder="你想说什么都可以，我永远听" 
+                    rows="1"
+                ></textarea>
+                <button id="sendBtn" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </a>
+            <a href="publish.html" class="nav-item">
+                <i class="fas fa-plus"></i>
+                <span>发布</span>
+            </a>
+            <a href="ai-chat.html" class="nav-item active">
+                <i class="fas fa-robot"></i>
+                <span>聊聊</span>
+            </a>
+        </div>
+    </div>
+    
+    <script src="js/common.js"></script>
+    <script src="js/page-specific/ai-chat.js"></script>
+</body>
+</html>

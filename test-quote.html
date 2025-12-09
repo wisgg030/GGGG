@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试语录卡片</title>
+</head>
+<body>
+    <h1>测试语录卡片功能</h1>
+    <button onclick="testQuoteCard()">显示语录卡片</button>
+    <button onclick="testPublishPost()">测试完整发布流程</button>
+
+    <script>
+        // 复制相关代码到测试页面
+        const positiveQuotes = [
+            '没事！！好歹我们还能吃能喝！',
+            '别难过，明天会更好的！',
+            '你已经很棒了！',
+            '加油，一切都会过去的！',
+            '相信自己，你能行！',
+            '每一天都是新的开始！',
+            '你值得被温柔对待！',
+            '保持微笑，世界会更美好！',
+            '勇敢面对，你会越来越强大！',
+            '生活总会给你惊喜的！'
+        ];
+
+        // 显示语录卡片的函数
+        function showQuoteCard() {
+            console.log('开始显示语录卡片');
+            
+            // 随机选择一条语录
+            const randomIndex = Math.floor(Math.random() * positiveQuotes.length);
+            const quote = positiveQuotes[randomIndex];
+            console.log('选中的语录:', quote);
+            
+            // 创建卡片元素
+            const card = document.createElement('div');
+            
+            // 设置样式 - 使用无框淡黄色背景，增加可见性
+            card.style.position = 'fixed';
+            card.style.top = '50%';
+            card.style.left = '50%';
+            card.style.transform = 'translate(-50%, -50%)';
+            card.style.zIndex = '99999';
+            card.style.backgroundColor = '#fff9c4'; // 淡黄色背景
+            card.style.padding = '40px 50px';
+            card.style.border = '2px solid #ffeb3b'; // 添加边框以增加可见性
+            card.style.borderRadius = '15px';
+            card.style.fontSize = '20px';
+            card.style.fontWeight = 'bold';
+            card.style.color = '#333';
+            card.style.textAlign = 'center';
+            card.style.minWidth = '300px';
+            card.style.maxWidth = '500px';
+            card.style.boxShadow = '0 10px 40px rgba(0,0,0,0.25)';
+            card.style.transition = 'all 0.3s ease'; // 添加过渡效果
+            card.style.opacity = '1'; // 确保不透明
+            
+            // 添加语录文本
+            const quoteText = document.createElement('p');
+            quoteText.textContent = quote;
+            quoteText.style.marginBottom = '20px';
+            card.appendChild(quoteText);
+            
+            // 添加关闭按钮
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '×';
+            closeBtn.style.position = 'absolute';
+            closeBtn.style.top = '10px';
+            closeBtn.style.right = '15px';
+            closeBtn.style.fontSize = '24px';
+            closeBtn.style.border = 'none';
+            closeBtn.style.background = 'none';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.style.color = '#666';
+            closeBtn.style.padding = '0';
+            closeBtn.style.width = '30px';
+            closeBtn.style.height = '30px';
+            closeBtn.style.borderRadius = '50%';
+            closeBtn.style.display = 'flex';
+            closeBtn.style.alignItems = 'center';
+            closeBtn.style.justifyContent = 'center';
+            closeBtn.style.transition = 'all 0.2s ease'; // 添加过渡效果
+            
+            // 关闭按钮悬停效果
+            closeBtn.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = 'rgba(0,0,0,0.1)';
+                this.style.transform = 'scale(1.2)';
+            });
+            
+            closeBtn.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = 'transparent';
+                this.style.transform = 'scale(1)';
+            });
+            
+            // 添加关闭按钮点击事件
+            closeBtn.addEventListener('click', function() {
+                console.log('关闭语录卡片');
+                card.style.opacity = '0';
+                setTimeout(function() {
+                    if (card.parentNode) {
+                        card.parentNode.removeChild(card);
+                    }
+                }, 300);
+            });
+            
+            card.appendChild(closeBtn);
+            
+            // 添加自动关闭功能
+            setTimeout(function() {
+                console.log('自动关闭语录卡片');
+                card.style.opacity = '0';
+                setTimeout(function() {
+                    if (card.parentNode) {
+                        card.parentNode.removeChild(card);
+                    }
+                }, 300);
+            }, 3000); // 3秒后自动关闭
+            
+            // 添加到页面
+            document.body.appendChild(card);
+            console.log('语录卡片已添加到页面');
+        }
+
+        // 测试函数
+        function testQuoteCard() {
+            showQuoteCard();
+        }
+
+        function testPublishPost() {
+            console.log('测试完整发布流程');
+            setTimeout(function() {
+                console.log('发布成功，显示语录卡片');
+                showQuoteCard();
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

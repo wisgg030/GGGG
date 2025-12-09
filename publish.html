@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布 - 动态</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/page-specific/publish.js"></script>
+
+</head>
+<body>
+    <div class="mini-program-container">
+
+
+        <!-- 发布内容区域 -->
+        <div class="publish-container">
+            <!-- 内容输入框卡片 -->
+            <div class="publish-card">
+                <!-- 重新设计的输入框布局，包含图片按钮、输入区域和发布按钮 -->
+                <div class="publish-input-container">
+                    <!-- 左侧图片按钮 -->
+                    <div class="publish-tool-item input-side-button" id="addImage">
+                        <span style="font-size: 20px;">📷</span>
+                    </div>
+                    <!-- 中间输入区域 -->
+                    <textarea class="publish-input" placeholder="没事哒没事哒没事哒QAQ" id="postContent"></textarea>
+                    <!-- 右侧发布按钮 -->
+                    <button class="publish-button-text" id="publishBtn">发布</button>
+                </div>
+                <!-- 隐藏的文件输入元素 -->
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+            </div>
+
+            <!-- 图片预览容器 -->
+            <div class="publish-preview" id="imagePreview" style="display: none;"></div>
+
+            <!-- 发布设置 -->
+        <div class="publish-settings">
+            <div class="settings-title">12月心情日历</div>
+
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- 星期标题 -->
+                <div class="calendar-weekdays">
+                    <div class="weekday">Mon</div>
+                    <div class="weekday">Tue</div>
+                    <div class="weekday">Wed</div>
+                    <div class="weekday">Thu</div>
+                    <div class="weekday">Fri</div>
+                    <div class="weekday">Sat</div>
+                    <div class="weekday">Sun</div>
+                </div>
+                <!-- 日期格子 -->
+                <div class="calendar-days" id="calendarDays">
+                    <!-- 日历日期将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <div class="bottom-nav-item" onclick="window.location.href='index.html'">
+                <span>首页</span>
+            </div>
+            <div class="bottom-nav-item active">
+                <span>发布</span>
+            </div>
+            <div class="bottom-nav-item" onclick="window.location.href='ai-chat.html'">
+                <span>聊聊</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 所有JavaScript功能已移至publish.js文件 -->
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布功能调试工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .button.danger {
+            background-color: #f44336;
+        }
+        .button.danger:hover {
+            background-color: #da190b;
+        }
+        .log {
+            background-color: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 3px solid #007BFF;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .log.success {
+            border-left-color: #4CAF50;
+        }
+        .log.error {
+            border-left-color: #f44336;
+        }
+        .data-viewer {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .data-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 3px;
+            border: 1px solid #eee;
+        }
+        .data-item h4 {
+            margin-top: 0;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>发布功能调试工具</h1>
+        
+        <div class="section">
+            <h2>1. 测试数据</h2>
+            <button class="button" onclick="createTestPost()">创建测试帖子</button>
+            <button class="button danger" onclick="clearAllData()">清空所有数据</button>
+            <div id="testLog"></div>
+        </div>
+        
+        <div class="section">
+            <h2>2. 检查localStorage数据</h2>
+            <button class="button" onclick="checkLocalStorage()">检查所有数据</button>
+            <div id="localStorageData"></div>
+        </div>
+        
+        <div class="section">
+            <h2>3. 模拟页面加载</h2>
+            <button class="button" onclick="simulateHomePageLoad()">模拟首页加载</button>
+            <button class="button" onclick="simulateProfilePageLoad()">模拟个人页加载</button>
+            <div id="simulationResult"></div>
+        </div>
+    </div>
+
+    <script>
+        // 日志记录
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('testLog');
+            const logItem = document.createElement('div');
+            logItem.className = `log ${type}`;
+            logItem.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            logDiv.appendChild(logItem);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        // 清空日志
+        function clearLog() {
+            document.getElementById('testLog').innerHTML = '';
+        }
+        
+        // 模拟创建测试帖子
+        function createTestPost() {
+            clearLog();
+            log('开始创建测试帖子...');
+            
+            // 模拟帖子数据
+            const post = {
+                id: Date.now(),
+                userId: '000001',
+                content: `测试帖子 ${new Date().toLocaleString()}`,
+                isPublic: true,
+                visibility: 'forever',
+                images: [
+                    { src: 'assets/images/feed1.jpg' }
+                ],
+                createdAt: new Date().toISOString()
+            };
+            
+            log('创建帖子对象: ' + JSON.stringify(post, null, 2));
+            
+            // 保存到localStorage（模拟publish.js中的savePostToLocalStorage函数）
+            savePostToLocalStorage(post);
+            
+            log('帖子创建完成！', 'success');
+            checkLocalStorage();
+        }
+        
+        // 模拟savePostToLocalStorage函数
+        function savePostToLocalStorage(post) {
+            // 获取现有的帖子
+            const existingPosts = JSON.parse(localStorage.getItem('posts')) || [];
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            const homeFeeds = JSON.parse(localStorage.getItem('homeFeeds')) || [];
+            
+            log(`保存前数据状态: posts(${existingPosts.length}), userPosts(${userPosts.length}), homeFeeds(${homeFeeds.length})`);
+            
+            // 添加新帖子
+            existingPosts.push(post);
+            userPosts.push(post);
+            
+            // 只有公开帖子才添加到homeFeeds
+            if (post.isPublic) {
+                homeFeeds.push(post);
+                // 按时间排序
+                homeFeeds.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
+            
+            // 保存回localStorage
+            localStorage.setItem('posts', JSON.stringify(existingPosts));
+            localStorage.setItem('userPosts', JSON.stringify(userPosts));
+            localStorage.setItem('homeFeeds', JSON.stringify(homeFeeds));
+            
+            log(`保存后数据状态: posts(${existingPosts.length}), userPosts(${userPosts.length}), homeFeeds(${homeFeeds.length})`, 'success');
+        }
+        
+        // 清空所有数据
+        function clearAllData() {
+            clearLog();
+            localStorage.removeItem('posts');
+            localStorage.removeItem('userPosts');
+            localStorage.removeItem('homeFeeds');
+            log('所有localStorage数据已清空！', 'success');
+            document.getElementById('localStorageData').innerHTML = '';
+            document.getElementById('simulationResult').innerHTML = '';
+        }
+        
+        // 检查localStorage数据
+        function checkLocalStorage() {
+            const dataDiv = document.getElementById('localStorageData');
+            dataDiv.innerHTML = '<h3>localStorage数据：</h3>';
+            
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const userPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+            const homeFeeds = JSON.parse(localStorage.getItem('homeFeeds') || '[]');
+            
+            dataDiv.innerHTML += `<div class="data-item"><h4>posts (${posts.length}):</h4><pre>${JSON.stringify(posts, null, 2)}</pre></div>`;
+            dataDiv.innerHTML += `<div class="data-item"><h4>userPosts (${userPosts.length}):</h4><pre>${JSON.stringify(userPosts, null, 2)}</pre></div>`;
+            dataDiv.innerHTML += `<div class="data-item"><h4>homeFeeds (${homeFeeds.length}):</h4><pre>${JSON.stringify(homeFeeds, null, 2)}</pre></div>`;
+        }
+        
+        // 模拟首页加载
+        function simulateHomePageLoad() {
+            clearLog();
+            log('开始模拟首页加载...');
+            
+            const resultDiv = document.getElementById('simulationResult');
+            resultDiv.innerHTML = '<h3>模拟首页加载结果：</h3>';
+            
+            // 模拟home.js中的loadHomeFeeds函数
+            const allPosts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const publicPosts = allPosts.filter(post => post.isPublic === true);
+            publicPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            log(`首页应该显示 ${publicPosts.length} 条公开帖子`, 'success');
+            
+            resultDiv.innerHTML += '<h4>公开帖子列表：</h4>';
+            if (publicPosts.length === 0) {
+                resultDiv.innerHTML += '<p>没有找到公开帖子</p>';
+            } else {
+                publicPosts.forEach(post => {
+                    resultDiv.innerHTML += `<div class="data-item">
+                        <h4>帖子ID: ${post.id}</h4>
+                        <p>内容: ${post.content}</p>
+                        <p>创建时间: ${new Date(post.createdAt).toLocaleString()}</p>
+                        <p>是否公开: ${post.isPublic ? '是' : '否'}</p>
+                    </div>`;
+                });
+            }
+        }
+        
+        // 模拟个人页加载
+        function simulateProfilePageLoad() {
+            clearLog();
+            log('开始模拟个人页加载...');
+            
+            const resultDiv = document.getElementById('simulationResult');
+            resultDiv.innerHTML = '<h3>模拟个人页加载结果：</h3>';
+            
+            // 模拟profile.js中的initHistoryTab函数
+            const userPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+            
+            log(`个人页应该显示 ${userPosts.length} 条发布历史`, 'success');
+            
+            resultDiv.innerHTML += '<h4>发布历史列表：</h4>';
+            if (userPosts.length === 0) {
+                resultDiv.innerHTML += '<p>没有发布历史</p>';
+            } else {
+                userPosts.forEach(post => {
+                    resultDiv.innerHTML += `<div class="data-item">
+                        <h4>帖子ID: ${post.id}</h4>
+                        <p>内容: ${post.content}</p>
+                        <p>创建时间: ${new Date(post.createdAt).toLocaleString()}</p>
+                        <p>是否公开: ${post.isPublic ? '是' : '否'}</p>
+                    </div>`;
+                });
+            }
+        }
+        
+        // 页面加载时自动检查数据
+        window.onload = function() {
+            checkLocalStorage();
+        };
+    </script>
+</body>
+</html>

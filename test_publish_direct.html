@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直接测试发布功能</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 0;
+        }
+        pre {
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 5px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.red {
+            background-color: #f44336;
+        }
+        button.red:hover {
+            background-color: #da190b;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>直接测试发布功能</h1>
+        
+        <div class="test-section">
+            <h2>测试发布功能</h2>
+            <textarea id="testContent" placeholder="请输入测试内容"></textarea>
+            <div>
+                <button onclick="testPublishFunction()">测试发布</button>
+                <button onclick="clearAllData()" class="red">清空所有数据</button>
+            </div>
+            <pre id="publishResult"></pre>
+        </div>
+        
+        <div class="test-section">
+            <h2>检查localStorage数据</h2>
+            <button onclick="checkLocalStorage()">检查数据</button>
+            <pre id="storageCheck"></pre>
+        </div>
+        
+        <div class="test-section">
+            <h2>测试个人主页加载</h2>
+            <button onclick="testProfileLoad()">测试个人主页加载</button>
+            <pre id="profileResult"></pre>
+        </div>
+        
+        <div class="test-section">
+            <h2>测试首页加载</h2>
+            <button onclick="testHomeLoad()">测试首页加载</button>
+            <pre id="homeResult"></pre>
+        </div>
+    </div>
+    
+    <script>
+        // 模拟发布功能（复制自publish.js）
+        function testPublishFunction() {
+            const resultDiv = document.getElementById('publishResult');
+            const content = document.getElementById('testContent').value.trim();
+            
+            if (!content) {
+                resultDiv.textContent = '请输入测试内容';
+                return;
+            }
+            
+            resultDiv.textContent = '开始测试发布功能...';
+            
+            try {
+                // 创建测试帖子对象
+                const testPost = {
+                    id: Date.now(), // 使用时间戳作为唯一ID
+                    content: content,
+                    visibility: 'forever',
+                    createdAt: new Date().toISOString(), // 保存发布时间
+                    isPublic: true, // 初始状态为公开
+                    images: []
+                };
+                
+                // 为帖子添加userId字段
+                testPost.userId = '000001';
+                
+                resultDiv.textContent += '\n创建帖子对象成功: ' + JSON.stringify(testPost, null, 2);
+                
+                // 保存到localStorage
+                // 保存到posts
+                let existingPosts = localStorage.getItem('posts');
+                existingPosts = existingPosts ? JSON.parse(existingPosts) : [];
+                existingPosts.push(testPost);
+                localStorage.setItem('posts', JSON.stringify(existingPosts));
+                
+                resultDiv.textContent += '\n保存到posts成功';
+                
+                // 保存到homeFeeds
+                let homeFeeds = localStorage.getItem('homeFeeds');
+                homeFeeds = homeFeeds ? JSON.parse(homeFeeds) : [];
+                homeFeeds.push(testPost);
+                localStorage.setItem('homeFeeds', JSON.stringify(homeFeeds));
+                
+                resultDiv.textContent += '\n保存到homeFeeds成功';
+                
+                // 保存到userPosts
+                let userPosts = localStorage.getItem('userPosts');
+                userPosts = userPosts ? JSON.parse(userPosts) : [];
+                userPosts.push(testPost);
+                localStorage.setItem('userPosts', JSON.stringify(userPosts));
+                
+                resultDiv.textContent += '\n保存到userPosts成功';
+                
+                resultDiv.textContent += '\n\n发布功能测试成功！';
+                
+            } catch (error) {
+                resultDiv.textContent += '\n\n发布功能测试失败: ' + error.message;
+            }
+        }
+        
+        function clearAllData() {
+            if (confirm('确定要清空所有数据吗？')) {
+                localStorage.removeItem('posts');
+                localStorage.removeItem('homeFeeds');
+                localStorage.removeItem('userPosts');
+                document.getElementById('publishResult').textContent = '所有数据已清空';
+                document.getElementById('storageCheck').textContent = '';
+                document.getElementById('profileResult').textContent = '';
+                document.getElementById('homeResult').textContent = '';
+            }
+        }
+        
+        function checkLocalStorage() {
+            const resultDiv = document.getElementById('storageCheck');
+            
+            let output = 'localStorage数据检查:\n\n';
+            
+            // 检查所有相关键
+            const keys = ['posts', 'homeFeeds', 'userPosts'];
+            keys.forEach(key => {
+                const data = localStorage.getItem(key);
+                if (data) {
+                    const parsedData = JSON.parse(data);
+                    output += `${key} (${parsedData.length} items):\n`;
+                    output += JSON.stringify(parsedData, null, 2);
+                    output += '\n\n';
+                } else {
+                    output += `${key}: 没有数据\n\n`;
+                }
+            });
+            
+            resultDiv.textContent = output;
+        }
+        
+        function testProfileLoad() {
+            const resultDiv = document.getElementById('profileResult');
+            
+            resultDiv.textContent = '测试个人主页加载...\n\n';
+            
+            try {
+                // 模拟profile.js中的initHistoryTab函数
+                let userPosts = localStorage.getItem('userPosts');
+                userPosts = userPosts ? JSON.parse(userPosts) : [];
+                
+                resultDiv.textContent += '从localStorage获取到的userPosts: ' + userPosts.length + ' 条\n\n';
+                
+                if (userPosts.length > 0) {
+                    resultDiv.textContent += '最新的帖子:\n';
+                    resultDiv.textContent += JSON.stringify(userPosts[userPosts.length - 1], null, 2);
+                    
+                    // 测试createHistoryItem函数逻辑
+                    resultDiv.textContent += '\n\n测试创建历史项...\n';
+                    const testPost = userPosts[userPosts.length - 1];
+                    const historyItemHTML = `
+                        <div class="history-content">
+                            ${testPost.content ? `<p>${escapeHtml(testPost.content)}</p>` : ''}
+                        </div>
+                        <div class="history-images">
+                            ${testPost.images && testPost.images.length > 0 ? `
+                                <img src="${testPost.images[0].src}" alt="发布内容" style="width: 100%; height: auto;">
+                            ` : ''}
+                        </div>
+                    `;
+                    resultDiv.textContent += '生成的HTML:\n' + historyItemHTML;
+                    
+                } else {
+                    resultDiv.textContent += '没有找到发布的内容';
+                }
+                
+            } catch (error) {
+                resultDiv.textContent += '加载失败: ' + error.message;
+            }
+        }
+        
+        function testHomeLoad() {
+            const resultDiv = document.getElementById('homeResult');
+            
+            resultDiv.textContent = '测试首页加载...\n\n';
+            
+            try {
+                // 模拟home.js中的loadHomeFeeds函数
+                let allPosts = localStorage.getItem('posts');
+                allPosts = allPosts ? JSON.parse(allPosts) : [];
+                
+                resultDiv.textContent += '从localStorage获取到的所有帖子: ' + allPosts.length + ' 条\n\n';
+                
+                const publicPosts = allPosts.filter(post => post.isPublic === true);
+                publicPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                resultDiv.textContent += '筛选后的公开帖子: ' + publicPosts.length + ' 条\n\n';
+                
+                if (publicPosts.length > 0) {
+                    resultDiv.textContent += '最新的公开帖子:\n';
+                    resultDiv.textContent += JSON.stringify(publicPosts[0], null, 2);
+                    
+                    // 测试createFeedItem函数逻辑
+                    resultDiv.textContent += '\n\n测试创建Feed项...\n';
+                    const testPost = publicPosts[0];
+                    const feedItemHTML = `
+                        <div class="feed-image-container">
+                            ${testPost.images && testPost.images.length > 0 ? `
+                                <img src="${testPost.images[0].src}" alt="Feed Image" class="feed-image">
+                            ` : ''}
+                            <div class="feed-interactions">
+                                <div class="interaction-btn" data-type="pat" data-feed-id="${testPost.id}">
+                                    <span class="interaction-text">拍拍</span>
+                                    <span class="interaction-count">0</span>
+                                </div>
+                                <div class="interaction-btn" data-type="like" data-feed-id="${testPost.id}">
+                                    <span class="interaction-text">+1</span>
+                                    <span class="interaction-count">0</span>
+                                </div>
+                                <div class="interaction-btn" data-type="favorite" data-feed-id="${testPost.id}">
+                                    <span style="font-size: 24px;">⭐</span>
+                                    <span class="interaction-count">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feed-info">
+                            <div class="feed-user-id">${testPost.userId}</div>
+                            <div class="feed-content">${escapeHtml(testPost.content)}</div>
+                        </div>
+                    `;
+                    resultDiv.textContent += '生成的HTML:\n' + feedItemHTML;
+                    
+                } else {
+                    resultDiv.textContent += '没有找到公开的内容';
+                }
+                
+            } catch (error) {
+                resultDiv.textContent += '加载失败: ' + error.message;
+            }
+        }
+        
+        // HTML转义函数（复制自profile.js）
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 页面加载时自动检查数据
+        window.onload = function() {
+            checkLocalStorage();
+        };
+    </script>
+</body>
+</html>

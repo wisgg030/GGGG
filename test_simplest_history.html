@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最简单的发布历史测试</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="mini-program-container">
+        <!-- 顶部固定区域 -->
+        <div class="profile-header-fixed">
+            <div class="profile-functions">
+                <div class="function-item active" data-tab="history">
+                    <span class="function-text">发布历史</span>
+                </div>
+            </div>
+        </div>
+        <!-- 内容展示区域 -->
+        <div class="content-display scrollable-container">
+            <div id="historyContent" class="content-tab active">
+                <div class="profile-content-list">
+                    <!-- 内容项将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. 添加测试数据
+        const testPosts = [
+            {
+                id: 'post-1',
+                userId: '000001',
+                content: '这是第一条测试发布的内容',
+                images: [],
+                visibility: 'forever',
+                createdAt: new Date().toISOString(),
+                isPublic: true,
+                expireAt: null,
+                likes: 0,
+                pats: 0,
+                favorites: 0
+            }
+        ];
+        localStorage.setItem('userPosts', JSON.stringify(testPosts));
+
+        // 2. HTML转义函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 3. 创建发布历史项
+        function createHistoryItem(post) {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'profile-feed-item';
+            const postDate = new Date(post.createdAt).toLocaleDateString();
+
+            historyItem.innerHTML = `
+                ${post.images && post.images.length > 0 && post.images[0].src ? `
+                    <div class="profile-feed-image-container">
+                        <img src="${post.images[0].src}" alt="发布内容">
+                    </div>
+                ` : ''}
+                <div class="profile-feed-info">
+                    <div class="profile-feed-user-id">${postDate}</div>
+                    ${post.content ? `
+                        <div class="profile-feed-content">${escapeHtml(post.content)}</div>
+                    ` : ''}
+                </div>
+            `;
+
+            return historyItem;
+        }
+
+        // 4. 显示空状态
+        function showEmptyState(containerId, message) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = `
+                <i class="fas fa-inbox"></i>
+                <p>${message}</p>
+            `;
+
+            container.appendChild(emptyState);
+        }
+
+        // 5. 初始化发布历史标签
+        function initHistoryTab() {
+            console.log('初始化发布历史标签');
+
+            const historyList = document.querySelector('#historyContent .profile-content-list');
+            if (!historyList) {
+                console.warn('发布历史列表容器未找到');
+                return;
+            }
+
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            console.log('userPosts数据:', userPosts);
+
+            historyList.innerHTML = '';
+
+            if (userPosts.length === 0) {
+                showEmptyState('historyContent', '什么都没有，莫非你就是传说中的宇宙幸运王？');
+                return;
+            }
+
+            userPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            userPosts.forEach((post, index) => {
+                const historyItem = createHistoryItem(post);
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // 6. 页面加载完成后调用
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，调用initHistoryTab');
+            initHistoryTab();
+        });
+    </script>
+</body>
+</html>

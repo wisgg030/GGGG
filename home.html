@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页 - Feeds流</title>
+    <link rel="stylesheet" href="css/styles.css">
+
+</head>
+<body>
+    <div class="mini-program-container">
+        <!-- 固定导航条 -->
+        <div class="fixed-nav">
+            <div class="fixed-eye">👀</div>
+        </div>
+        <!-- Feeds流容器 -->
+        <div class="feeds-container" id="feedsContainer">
+            <!-- Feed 1 -->
+            <div class="feed-item">
+                <div class="feed-image-container">
+                    <img src="assets/images/feed1.jpg" alt="Feed Image">
+                    <div class="feed-interactions">
+                        <div class="interaction-btn" data-type="pat" data-feed-id="1">
+                            <span class="interaction-text">拍拍</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="like" data-feed-id="1">
+                            <span class="interaction-text">+1</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="favorite" data-feed-id="1">
+                            <span style="font-size: 24px;">⭐</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="feed-info">
+                    <div class="feed-user-id">20240520</div>
+                    <div class="feed-content">刚买的红茶掉地上了。。。</div>
+                </div>
+            </div>
+
+            <!-- Feed 2 -->
+            <div class="feed-item">
+                <div class="feed-image-container">
+                    <img src="assets/images/feed2.jpg" alt="Feed Image">
+                    <div class="feed-interactions">
+                        <div class="interaction-btn" data-type="pat" data-feed-id="2">
+                            <span class="interaction-text">拍拍</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="like" data-feed-id="2">
+                            <span class="interaction-text">+1</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="favorite" data-feed-id="2">
+                            <span style="font-size: 24px;">⭐</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="feed-info">
+                    <div class="feed-user-id">20240521</div>
+                    <div class="feed-content">刚买的红茶掉地上了。。。</div>
+                </div>
+            </div>
+
+            <!-- Feed 3 -->
+            <div class="feed-item">
+                <div class="feed-image-container">
+                    <img src="assets/images/feed3.jpg" alt="Feed Image">
+                    <div class="feed-interactions">
+                        <div class="interaction-btn" data-type="pat" data-feed-id="3">
+                            <span class="interaction-text">拍拍</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="like" data-feed-id="3">
+                            <span class="interaction-text">+1</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="favorite" data-feed-id="3">
+                            <span style="font-size: 24px;">⭐</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="feed-info">
+                    <div class="feed-user-id">20240522</div>
+                    <div class="feed-content">刚买的红茶掉地上了。。。</div>
+                </div>
+            </div>
+
+            <!-- Feed 4 -->
+            <div class="feed-item">
+                <div class="feed-image-container">
+                    <img src="assets/images/feed4.jpg" alt="Feed Image">
+                    <div class="feed-interactions">
+                        <div class="interaction-btn" data-type="pat" data-feed-id="4">
+                            <span class="interaction-text">拍拍</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="like" data-feed-id="4">
+                            <span class="interaction-text">+1</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="favorite" data-feed-id="4">
+                            <span style="font-size: 24px;">⭐</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="feed-info">
+                    <div class="feed-user-id">20240523</div>
+                    <div class="feed-content">刚买的红茶掉地上了。。。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <div class="bottom-nav-item active">
+                <span>首页</span>
+            </div>
+            <div class="bottom-nav-item" onclick="window.location.href='publish.html'">
+                <span>发布</span>
+            </div>
+            <div class="bottom-nav-item" onclick="window.location.href='profile.html'">
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/page-specific/home.js"></script>
+    <script src="test-feed.js"></script>
+    
+
+</body>
+</html>

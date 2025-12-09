@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>检查存储数据</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .data-section {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #45a049;
+        }
+        .button.clear {
+            background: #f44336;
+        }
+        .button.clear:hover {
+            background: #da190b;
+        }
+        .test-form {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>检查 localStorage 数据</h1>
+        
+        <button class="button" onclick="loadStorageData()">重新加载数据</button>
+        <button class="button clear" onclick="clearAllStorage()">清空所有存储</button>
+        
+        <h2>1. homeFeeds (首页信息流)</h2>
+        <div id="homeFeedsData" class="data-section">点击"重新加载数据"查看</div>
+        
+        <h2>2. posts (所有发布内容)</h2>
+        <div id="postsData" class="data-section">点击"重新加载数据"查看</div>
+        
+        <h2>3. userPosts (用户发布历史)</h2>
+        <div id="userPostsData" class="data-section">点击"重新加载数据"查看</div>
+        
+        <h2>4. 测试发布功能</h2>
+        <div class="test-form">
+            <h3>发布测试内容</h3>
+            <div>
+                <label for="testContent">内容：</label>
+                <textarea id="testContent" rows="3" placeholder="输入测试内容"></textarea>
+            </div>
+            <button class="button" onclick="testPublish()">发布测试</button>
+        </div>
+    </div>
+
+    <script>
+        // 加载 localStorage 数据
+        function loadStorageData() {
+            const homeFeeds = JSON.parse(localStorage.getItem('homeFeeds')) || [];
+            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            
+            document.getElementById('homeFeedsData').textContent = JSON.stringify(homeFeeds, null, 2);
+            document.getElementById('postsData').textContent = JSON.stringify(posts, null, 2);
+            document.getElementById('userPostsData').textContent = JSON.stringify(userPosts, null, 2);
+        }
+        
+        // 清空所有存储
+        function clearAllStorage() {
+            if (confirm('确定要清空所有 localStorage 数据吗？')) {
+                localStorage.removeItem('homeFeeds');
+                localStorage.removeItem('posts');
+                localStorage.removeItem('userPosts');
+                localStorage.removeItem('feeds');
+                loadStorageData();
+                alert('数据已清空');
+            }
+        }
+        
+        // 测试发布功能
+        function testPublish() {
+            const content = document.getElementById('testContent').value;
+            if (!content.trim()) {
+                alert('请输入内容');
+                return;
+            }
+            
+            // 创建测试帖子
+            const post = {
+                id: 'test-' + Date.now(),
+                userId: '用户001',
+                content: content,
+                createdAt: new Date().toISOString(),
+                visibility: 'public'
+            };
+            
+            // 保存到 localStorage
+            const homeFeeds = JSON.parse(localStorage.getItem('homeFeeds')) || [];
+            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            
+            homeFeeds.unshift(post); // 添加到首页信息流开头
+            posts.unshift(post); // 添加到所有发布内容
+            userPosts.unshift(post); // 添加到用户发布历史
+            
+            localStorage.setItem('homeFeeds', JSON.stringify(homeFeeds));
+            localStorage.setItem('posts', JSON.stringify(posts));
+            localStorage.setItem('userPosts', JSON.stringify(userPosts));
+            
+            document.getElementById('testContent').value = '';
+            loadStorageData();
+            alert('测试内容发布成功！\n请刷新首页查看效果。');
+        }
+        
+        // 页面加载时自动加载数据
+        window.onload = loadStorageData;
+    </script>
+</body>
+</html>

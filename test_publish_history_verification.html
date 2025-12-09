@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布历史验证</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        button {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #ff5252;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .post-item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fafafa;
+            border-radius: 5px;
+            border-left: 4px solid #ff6b6b;
+        }
+        .post-date {
+            font-size: 12px;
+            color: #666;
+        }
+        .post-content {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>发布历史功能验证</h1>
+        
+        <div class="test-section">
+            <h2>1. 检查当前localStorage中的帖子数据</h2>
+            <button onclick="checkLocalStorage()">检查localStorage</button>
+            <div id="localStorageResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. 发布测试内容</h2>
+            <textarea id="testContent" rows="3" placeholder="输入测试内容..."></textarea>
+            <br>
+            <button onclick="publishTestContent()">发布测试内容</button>
+            <div id="publishResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. 查看发布历史</h2>
+            <button onclick="viewHistory()">查看发布历史</button>
+            <div id="historyResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. 清空测试数据</h2>
+            <button onclick="clearTestData()">清空测试数据</button>
+            <div id="clearResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>5. 跳转到实际页面测试</h2>
+            <button onclick="window.location.href='publish.html'">跳转到发布页面</button>
+            <button onclick="window.location.href='profile.html'">跳转到个人主页</button>
+        </div>
+    </div>
+    
+    <script>
+        function checkLocalStorage() {
+            const resultDiv = document.getElementById('localStorageResult');
+            
+            // 检查posts数据
+            const posts = localStorage.getItem('posts');
+            const postsCount = posts ? JSON.parse(posts).length : 0;
+            
+            // 检查userPosts数据
+            const userPosts = localStorage.getItem('userPosts');
+            const userPostsCount = userPosts ? JSON.parse(userPosts).length : 0;
+            
+            // 显示结果
+            resultDiv.innerHTML = `
+                <strong>localStorage中的帖子数据:</strong><br>
+                - posts总数: ${postsCount}<br>
+                - userPosts总数: ${userPostsCount}<br>
+                <br>
+                <strong>最近的帖子:</strong><br>
+            `;
+            
+            // 显示最近的帖子
+            if (userPosts) {
+                const postsArray = JSON.parse(userPosts);
+                const recentPosts = postsArray.slice(-3).reverse();
+                
+                recentPosts.forEach((post, index) => {
+                    const postDiv = document.createElement('div');
+                    postDiv.className = 'post-item';
+                    postDiv.innerHTML = `
+                        <div class="post-date">${new Date(post.createdAt).toLocaleString()}</div>
+                        <div class="post-content">${post.content}</div>
+                    `;
+                    resultDiv.appendChild(postDiv);
+                });
+            }
+        }
+        
+        function publishTestContent() {
+            const content = document.getElementById('testContent').value;
+            const publishResult = document.getElementById('publishResult');
+            
+            if (!content.trim()) {
+                publishResult.innerHTML = '<strong style="color: red;">请输入测试内容！</strong>';
+                return;
+            }
+            
+            // 创建测试帖子
+            const post = {
+                id: Date.now(),
+                content: content,
+                visibility: 'forever',
+                createdAt: new Date().toISOString(),
+                isPublic: true,
+                images: [],
+                userId: '000001'
+            };
+            
+            // 保存到posts
+            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+            posts.push(post);
+            localStorage.setItem('posts', JSON.stringify(posts));
+            
+            // 保存到userPosts
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            userPosts.push(post);
+            localStorage.setItem('userPosts', JSON.stringify(userPosts));
+            
+            // 保存到homeFeeds
+            const homeFeeds = JSON.parse(localStorage.getItem('homeFeeds')) || [];
+            if (post.isPublic) {
+                homeFeeds.push(post);
+                homeFeeds.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                localStorage.setItem('homeFeeds', JSON.stringify(homeFeeds));
+            }
+            
+            publishResult.innerHTML = '<strong style="color: green;">测试内容发布成功！</strong>';
+            document.getElementById('testContent').value = '';
+        }
+        
+        function viewHistory() {
+            const resultDiv = document.getElementById('historyResult');
+            
+            // 从localStorage获取userPosts数据
+            const userPosts = localStorage.getItem('userPosts');
+            
+            if (!userPosts) {
+                resultDiv.innerHTML = '<strong style="color: orange;">没有找到发布历史数据！</strong>';
+                return;
+            }
+            
+            const postsArray = JSON.parse(userPosts);
+            
+            if (postsArray.length === 0) {
+                resultDiv.innerHTML = '<strong style="color: orange;">发布历史为空！</strong>';
+                return;
+            }
+            
+            // 按时间倒序排序
+            postsArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            resultDiv.innerHTML = `<strong>发布历史 (共${postsArray.length}条):</strong><br>`;
+            
+            // 显示所有帖子
+            postsArray.forEach((post, index) => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post-item';
+                postDiv.innerHTML = `
+                    <div class="post-date">${new Date(post.createdAt).toLocaleString()}</div>
+                    <div class="post-content">${post.content}</div>
+                `;
+                resultDiv.appendChild(postDiv);
+            });
+        }
+        
+        function clearTestData() {
+            const clearResult = document.getElementById('clearResult');
+            
+            // 清空所有测试数据
+            localStorage.removeItem('posts');
+            localStorage.removeItem('userPosts');
+            localStorage.removeItem('homeFeeds');
+            
+            clearResult.innerHTML = '<strong style="color: green;">测试数据已清空！</strong>';
+        }
+    </script>
+</body>
+</html>

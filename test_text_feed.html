@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>纯文本信息流测试</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="mini-program-container">
+        <!-- 固定导航条 -->
+        <div class="fixed-nav">
+            <div class="fixed-eye">👀</div>
+        </div>
+        <!-- Feeds流容器 -->
+        <div class="feeds-container" id="feedsContainer">
+            <!-- 带图片的Feed -->
+            <div class="feed-item">
+                <div class="feed-image-container">
+                    <img src="assets/images/feed1.jpg" alt="Feed Image">
+                    <div class="feed-interactions">
+                        <div class="interaction-btn" data-type="pat" data-feed-id="1">
+                            <span class="interaction-text">拍拍</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="like" data-feed-id="1">
+                            <span class="interaction-text">+1</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="favorite" data-feed-id="1">
+                            <span style="font-size: 24px;">⭐</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="feed-info">
+                    <div class="feed-user-id">20240520</div>
+                    <div class="feed-content">刚买的红茶掉地上了。。。</div>
+                </div>
+            </div>
+
+            <!-- 纯文本Feed -->
+            <div class="feed-item feed-item-text-only">
+                <div class="feed-info-text-only">
+                    <div class="feed-interactions feed-interactions-text-only">
+                        <div class="interaction-btn" data-type="pat" data-feed-id="text-1">
+                            <span class="interaction-text">拍拍</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="like" data-feed-id="text-1">
+                            <span class="interaction-text">+1</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="favorite" data-feed-id="text-1">
+                            <span style="font-size: 24px;">⭐</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                    </div>
+                    <div class="feed-user-id">20240521</div>
+                    <div class="feed-content">今天天气真好，适合出去散步。</div>
+                </div>
+            </div>
+
+            <!-- 长文本Feed -->
+            <div class="feed-item feed-item-text-only">
+                <div class="feed-info-text-only">
+                    <div class="feed-interactions feed-interactions-text-only">
+                        <div class="interaction-btn" data-type="pat" data-feed-id="text-2">
+                            <span class="interaction-text">拍拍</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="like" data-feed-id="text-2">
+                            <span class="interaction-text">+1</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                        <div class="interaction-btn" data-type="favorite" data-feed-id="text-2">
+                            <span style="font-size: 24px;">⭐</span>
+                            <span class="interaction-count">0</span>
+                        </div>
+                    </div>
+                    <div class="feed-user-id">20240522</div>
+                    <div class="feed-content">这是一条很长的文本内容，测试调整后的样式是否能正确显示多行文本，确保文本不会被截断，同时交互按钮能够正确地紧随在文本内容的右侧。</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

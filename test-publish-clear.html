@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试发布后清空功能</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .publish-container {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .publish-input-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .publish-input {
+            flex: 1;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        .publish-button-text {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .publish-preview {
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 10px;
+            min-height: 100px;
+        }
+        .preview-item {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+        }
+        .preview-item img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 4px;
+        }
+        .debug-info {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>测试发布后清空功能</h1>
+    
+    <div class="debug-info">
+        <h3>调试信息</h3>
+        <div id="debugLogs"></div>
+    </div>
+    
+    <div class="publish-container">
+        <!-- 发布内容区域 -->
+        <div class="publish-input-container">
+            <button class="publish-tool-item input-side-button" id="addImage">📷</button>
+            <textarea class="publish-input" placeholder="测试内容..." id="postContent"></textarea>
+            <button class="publish-button-text" id="publishBtn">发布</button>
+        </div>
+        <!-- 隐藏的文件输入元素 -->
+        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        <!-- 图片预览容器 -->
+        <div class="publish-preview" id="imagePreview" style="display: none;"></div>
+    </div>
+    
+    <div class="test-result" id="testResult"></div>
+    
+    <script src="js/page-specific/publish.js"></script>
+    
+    <script>
+        // 添加额外的调试日志
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('debugLogs');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-${type}`;
+            logEntry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+        
+        // 重写publishPost函数以添加测试验证
+        const originalPublishPost = window.publishPost;
+        window.publishPost = function() {
+            log('发布按钮点击，开始发布过程');
+            
+            // 记录发布前的状态
+            const preContent = document.getElementById('postContent').value;
+            const prePreview = document.getElementById('imagePreview').innerHTML;
+            log(`发布前 - 内容长度: ${preContent.length}, 预览图存在: ${prePreview !== ''}`);
+            
+            // 执行原始发布函数
+            originalPublishPost();
+            
+            // 检查发布后的状态
+            setTimeout(() => {
+                const postContent = document.getElementById('postContent').value;
+                const postPreview = document.getElementById('imagePreview').innerHTML;
+                log(`发布后 - 内容长度: ${postContent.length}, 预览图存在: ${postPreview !== ''}`);
+                
+                // 验证结果
+                const testResult = document.getElementById('testResult');
+                if (postContent === '' && postPreview === '') {
+                    testResult.className = 'test-result success';
+                    testResult.innerHTML = '✅ 测试通过！发布后输入框和预览图已成功清空。';
+                    log('测试通过！发布后输入框和预览图已成功清空。', 'success');
+                } else {
+                    testResult.className = 'test-result error';
+                    testResult.innerHTML = '❌ 测试失败！发布后输入框或预览图未被清空。';
+                    log('测试失败！发布后输入框或预览图未被清空。', 'error');
+                }
+            }, 500); // 等待清空操作完成
+        };
+        
+        // 模拟添加图片的功能
+        document.getElementById('addImage').addEventListener('click', function() {
+            document.getElementById('imageInput').click();
+        });
+        
+        // 模拟图片预览（简化版）
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.innerHTML = `<div class="preview-item"><img src="${event.target.result}" alt="预览图"></div>`;
+                    preview.style.display = 'block';
+                    log('已添加图片预览', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        log('测试页面初始化完成');
+    </script>
+</body>
+</html>

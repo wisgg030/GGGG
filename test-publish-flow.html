@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试发布流程</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fafafa;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        input, textarea, select, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .test-buttons button {
+            flex: 1;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>测试发布流程</h1>
+
+        <!-- 发布测试区 -->
+        <div class="test-section">
+            <h2>1. 发布内容</h2>
+            <textarea id="content" rows="5" placeholder="请输入内容..."></textarea>
+            <input type="file" id="image" accept="image/*">
+            <select id="visibility">
+                <option value="public">公开</option>
+                <option value="private">私密</option>
+            </select>
+            <button id="publishBtn">发布内容</button>
+            <div id="publishStatus"></div>
+        </div>
+
+        <!-- 测试导航区 -->
+        <div class="test-section">
+            <h2>2. 测试导航</h2>
+            <div class="test-buttons">
+                <button onclick="window.location.href='home.html'">查看首页</button>
+                <button onclick="window.location.href='profile.html'">查看个人主页</button>
+            </div>
+        </div>
+
+        <!-- 调试区 -->
+        <div class="test-section">
+            <h2>3. 调试工具</h2>
+            <button id="clearStorage">清空localStorage</button>
+            <button id="viewStorage">查看localStorage内容</button>
+            <div id="storageContent" style="max-height: 300px; overflow-y: auto; margin-top: 10px; font-family: monospace; font-size: 14px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // 辅助函数：获取文件的DataURL
+        function getFileDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // 发布内容功能
+        document.getElementById('publishBtn').addEventListener('click', async () => {
+            const content = document.getElementById('content').value;
+            const imageInput = document.getElementById('image');
+            const visibility = document.getElementById('visibility').value;
+            const statusDiv = document.getElementById('publishStatus');
+
+            if (!content.trim()) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '请输入内容';
+                return;
+            }
+
+            try {
+                // 处理图片
+                let images = [];
+                if (imageInput.files.length > 0) {
+                    const imageDataURL = await getFileDataURL(imageInput.files[0]);
+                    images = [{ src: imageDataURL, alt: '上传的图片' }];
+                }
+
+                // 创建帖子对象
+                const post = {
+                    id: 'post_' + Date.now(),
+                    userId: '000001',
+                    content: content.trim(),
+                    images: images,
+                    isPublic: visibility === 'public',
+                    createdAt: new Date().toISOString(),
+                    likes: 0,
+                    pats: 0,
+                    favorites: 0
+                };
+
+                // 保存到localStorage
+                savePostToLocalStorage(post);
+
+                // 清空表单
+                document.getElementById('content').value = '';
+                imageInput.value = '';
+
+                statusDiv.className = 'status';
+                statusDiv.textContent = '发布成功！内容已保存到localStorage。请点击下方按钮查看首页或个人主页。';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '发布失败：' + error.message;
+            }
+        });
+
+        // 保存帖子到localStorage的函数（复制自publish.js）
+        function savePostToLocalStorage(post) {
+            console.log('开始保存帖子到localStorage...');
+            console.log('保存的帖子内容:', post);
+            
+            // 为帖子添加userId字段，使用当前用户ID
+            post.userId = '000001'; // 当前用户固定为000001
+            console.log('添加userId后:', post);
+            
+            // 获取现有的帖子
+            const existingPosts = JSON.parse(localStorage.getItem('posts')) || [];
+            console.log('保存前posts长度:', existingPosts.length);
+            
+            // 添加新帖子
+            existingPosts.push(post);
+            console.log('添加后posts长度:', existingPosts.length);
+            
+            // 保存回localStorage
+            localStorage.setItem('posts', JSON.stringify(existingPosts));
+            const savedPosts = JSON.parse(localStorage.getItem('posts'));
+            console.log('posts保存成功，当前长度:', savedPosts ? savedPosts.length : '失败');
+            
+            // 保存到userPosts，用于个人主页的发布历史
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            console.log('保存前userPosts长度:', userPosts.length);
+            
+            userPosts.push(post);
+            console.log('添加后userPosts长度:', userPosts.length);
+            
+            localStorage.setItem('userPosts', JSON.stringify(userPosts));
+            const savedUserPosts = JSON.parse(localStorage.getItem('userPosts'));
+            console.log('userPosts保存成功，当前长度:', savedUserPosts ? savedUserPosts.length : '失败');
+            
+            // 更新homeFeeds数组，用于首页信息流
+            const homeFeeds = JSON.parse(localStorage.getItem('homeFeeds')) || [];
+            console.log('保存前homeFeeds长度:', homeFeeds.length);
+            
+            // 只有公开帖子才添加到homeFeeds
+            if (post.isPublic) {
+                homeFeeds.push(post);
+                console.log('添加后homeFeeds长度:', homeFeeds.length);
+                
+                // 按时间排序，最新的在前面
+                homeFeeds.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                localStorage.setItem('homeFeeds', JSON.stringify(homeFeeds));
+                const savedHomeFeeds = JSON.parse(localStorage.getItem('homeFeeds'));
+                console.log('homeFeeds保存成功，当前长度:', savedHomeFeeds ? savedHomeFeeds.length : '失败');
+            } else {
+                console.log('帖子为非公开，不添加到homeFeeds');
+            }
+            
+            console.log('帖子保存到localStorage完成:', post);
+        }
+
+        // 清空localStorage
+        document.getElementById('clearStorage').addEventListener('click', () => {
+            if (confirm('确定要清空localStorage吗？这将删除所有测试数据。')) {
+                localStorage.removeItem('posts');
+                localStorage.removeItem('userPosts');
+                localStorage.removeItem('homeFeeds');
+                alert('localStorage已清空！');
+                document.getElementById('storageContent').innerHTML = '';
+            }
+        });
+
+        // 查看localStorage内容
+        document.getElementById('viewStorage').addEventListener('click', () => {
+            const storageContent = document.getElementById('storageContent');
+            storageContent.innerHTML = '';
+            
+            // 查看posts
+            const posts = localStorage.getItem('posts');
+            const postsObj = posts ? JSON.parse(posts) : [];
+            storageContent.innerHTML += `<strong>posts (${postsObj.length}):</strong><br>${JSON.stringify(postsObj, null, 2)}<br><br>`;
+            
+            // 查看userPosts
+            const userPosts = localStorage.getItem('userPosts');
+            const userPostsObj = userPosts ? JSON.parse(userPosts) : [];
+            storageContent.innerHTML += `<strong>userPosts (${userPostsObj.length}):</strong><br>${JSON.stringify(userPostsObj, null, 2)}<br><br>`;
+            
+            // 查看homeFeeds
+            const homeFeeds = localStorage.getItem('homeFeeds');
+            const homeFeedsObj = homeFeeds ? JSON.parse(homeFeeds) : [];
+            storageContent.innerHTML += `<strong>homeFeeds (${homeFeedsObj.length}):</strong><br>${JSON.stringify(homeFeedsObj, null, 2)}<br><br>`;
+        });
+    </script>
+</body>
+</html>

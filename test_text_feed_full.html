@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>纯文本信息流完整测试</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* 添加一些额外的样式来模拟真实环境 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #ffb6c1;
+        }
+        
+        #feedsContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        /* 确保按钮容器不会被任何溢出隐藏 */
+        .feed-item {
+            overflow: visible;
+        }
+    </style>
+</head>
+<body>
+    <div id="feedsContainer">
+        <!-- 带图片的信息流 -->
+        <div class="feed-item" data-feed-id="1">
+            <div class="feed-image-container">
+                <img src="https://via.placeholder.com/500x300" alt="Feed Image" class="feed-image">
+                <div class="feed-interactions">
+                    <div class="interaction-btn" data-type="pat" data-feed-id="1">
+                        <span class="interaction-text">拍拍</span>
+                        <span class="interaction-count">0</span>
+                    </div>
+                    <div class="interaction-btn" data-type="like" data-feed-id="1">
+                        <span class="interaction-text">+1</span>
+                        <span class="interaction-count">0</span>
+                    </div>
+                    <div class="interaction-btn" data-type="favorite" data-feed-id="1">
+                        <span style="font-size: 24px;">⭐</span>
+                        <span class="interaction-count">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="feed-info">
+                <div class="feed-user-id">000001</div>
+                <div class="feed-content">这是一个带图片的信息流测试内容，用于验证按钮的位置是否正确。</div>
+            </div>
+        </div>
+        
+        <!-- 纯文本信息流 -->
+        <div class="feed-item feed-item-text-only" data-feed-id="2">
+            <div class="feed-info feed-info-text-only">
+                <div class="feed-interactions feed-interactions-text-only">
+                    <div class="interaction-btn" data-type="pat" data-feed-id="2">
+                        <span class="interaction-text">拍拍</span>
+                        <span class="interaction-count">0</span>
+                    </div>
+                    <div class="interaction-btn" data-type="like" data-feed-id="2">
+                        <span class="interaction-text">+1</span>
+                        <span class="interaction-count">0</span>
+                    </div>
+                    <div class="interaction-btn" data-type="favorite" data-feed-id="2">
+                        <span style="font-size: 24px;">⭐</span>
+                        <span class="interaction-count">0</span>
+                    </div>
+                </div>
+                <div class="feed-user-id">000002</div>
+                <div class="feed-content">这是一个纯文本的信息流测试内容，用于验证按钮的位置是否正确。</div>
+            </div>
+        </div>
+        
+        <!-- 带图片的信息流 -->
+        <div class="feed-item" data-feed-id="3">
+            <div class="feed-image-container">
+                <img src="https://via.placeholder.com/500x300" alt="Feed Image" class="feed-image">
+                <div class="feed-interactions">
+                    <div class="interaction-btn" data-type="pat" data-feed-id="3">
+                        <span class="interaction-text">拍拍</span>
+                        <span class="interaction-count">0</span>
+                    </div>
+                    <div class="interaction-btn" data-type="like" data-feed-id="3">
+                        <span class="interaction-text">+1</span>
+                        <span class="interaction-count">0</span>
+                    </div>
+                    <div class="interaction-btn" data-type="favorite" data-feed-id="3">
+                        <span style="font-size: 24px;">⭐</span>
+                        <span class="interaction-count">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="feed-info">
+                <div class="feed-user-id">000003</div>
+                <div class="feed-content">这是另一个带图片的信息流测试内容，用于验证按钮的位置是否正确。</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

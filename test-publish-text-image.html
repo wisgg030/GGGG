@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试文字+图片发布功能</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .publish-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fafafa;
+            border-radius: 8px;
+        }
+        .publish-section h2 {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        .image-upload {
+            margin-bottom: 10px;
+        }
+        #addImage {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #addImage:hover {
+            background-color: #45a049;
+        }
+        #imagePreview {
+            display: none;
+            margin-top: 10px;
+        }
+        .preview-item {
+            position: relative;
+            display: inline-block;
+        }
+        .preview-item img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 4px;
+        }
+        .preview-delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .visibility-options {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .visibility-option-simple {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .visibility-option-simple.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        #publishBtn {
+            padding: 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        #publishBtn:hover {
+            background-color: #0b7dda;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>测试文字+图片发布功能</h1>
+
+        <!-- 发布测试区 -->
+        <div class="publish-section">
+            <h2>发布内容</h2>
+            <textarea id="postContent" placeholder="请输入文字内容..."></textarea>
+            <div class="image-upload">
+                <button id="addImage">添加图片</button>
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+            </div>
+            <div id="imagePreview"></div>
+            <div class="visibility-options">
+                <div class="visibility-option-simple active" data-duration="forever">公开</div>
+                <div class="visibility-option-simple" data-duration="24h">24小时后消失</div>
+            </div>
+            <button id="publishBtn">发布内容</button>
+            <div id="publishStatus"></div>
+        </div>
+
+        <!-- 调试区 -->
+        <div class="publish-section">
+            <h2>调试信息</h2>
+            <div id="debugInfo"></div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量和DOM元素
+        let postContent, publishBtn, visibilityOptions, imageInput, imagePreview;
+        let uploadedImage = null;
+
+        // 页面加载完成后执行
+        window.addEventListener('load', function() {
+            console.log('发布页面加载完成');
+            
+            // 获取DOM元素
+            postContent = document.getElementById('postContent');
+            publishBtn = document.getElementById('publishBtn');
+            visibilityOptions = document.querySelectorAll('.visibility-option-simple');
+            imageInput = document.getElementById('imageInput');
+            imagePreview = document.getElementById('imagePreview');
+            
+            console.log('DOM元素获取结果:', {
+                postContent: !!postContent,
+                publishBtn: !!publishBtn,
+                visibilityOptions: visibilityOptions.length,
+                imageInput: !!imageInput,
+                imagePreview: !!imagePreview
+            });
+            
+            // 更新调试信息
+            updateDebugInfo();
+            
+            // 初始化可见性选项
+            initVisibilityOptions();
+            
+            // 初始化图片上传
+            initImageUpload();
+            
+            // 绑定发布按钮事件
+            publishBtn.addEventListener('click', publishPost);
+            console.log('发布按钮事件已绑定');
+            
+            console.log('发布页面初始化完成');
+        });
+        
+        // 更新调试信息
+        function updateDebugInfo() {
+            const debugInfo = document.getElementById('debugInfo');
+            debugInfo.innerHTML = `
+                <strong>当前状态:</strong><br>
+                - 文字内容: ${postContent ? postContent.value.length : 0} 字符<br>
+                - 图片数量: ${uploadedImage ? 1 : 0}<br>
+                - uploadedImage: ${uploadedImage ? '已设置' : 'null'}<br>
+                - 预览图显示: ${imagePreview ? imagePreview.style.display : '未找到'}
+            `;
+        }
+        
+        // 初始化可见性选项
+        function initVisibilityOptions() {
+            if (visibilityOptions.length === 0) {
+                console.warn('没有找到可见性选项');
+                return;
+            }
+            
+            // 默认选择第一个选项
+            visibilityOptions[0].classList.add('active');
+            
+            // 添加点击事件
+            visibilityOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除所有选项的active类
+                    visibilityOptions.forEach(opt => opt.classList.remove('active'));
+                    // 为当前点击的选项添加active类
+                    this.classList.add('active');
+                });
+            });
+        }
+        
+        // 初始化图片上传
+        function initImageUpload() {
+            if (!imageInput || !imagePreview) {
+                console.warn('图片上传相关元素未找到');
+                return;
+            }
+            
+            // 图片上传按钮点击事件
+            document.getElementById('addImage').addEventListener('click', function() {
+                imageInput.click();
+            });
+            
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // 创建图片预览
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = {
+                        file: file,
+                        src: e.target.result
+                    };
+                    
+                    // 如果已经有图片，替换它
+                    if (uploadedImage) {
+                        // 移除旧的预览项
+                        imagePreview.innerHTML = '';
+                    }
+                    
+                    uploadedImage = imageData;
+                    createImagePreview(imageData);
+                    
+                    // 更新调试信息
+                    updateDebugInfo();
+                };
+                reader.readAsDataURL(file);
+                
+                // 清空文件输入
+                imageInput.value = '';
+            });
+        }
+        
+        // 创建图片预览
+        function createImagePreview(imageData) {
+            // 创建预览项
+            const previewItem = document.createElement('div');
+            previewItem.className = 'preview-item';
+            
+            // 创建图片元素
+            const img = document.createElement('img');
+            img.src = imageData.src;
+            img.alt = '预览图片';
+            
+            // 创建删除按钮
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'preview-delete-btn';
+            deleteBtn.innerHTML = '×';
+            
+            // 删除按钮事件
+            deleteBtn.addEventListener('click', function() {
+                uploadedImage = null;
+                previewItem.remove();
+                imagePreview.style.display = 'none';
+                
+                // 更新调试信息
+                updateDebugInfo();
+            });
+            
+            // 组装预览项
+            previewItem.appendChild(img);
+            previewItem.appendChild(deleteBtn);
+            imagePreview.appendChild(previewItem);
+            
+            // 显示预览容器
+            imagePreview.style.display = 'flex';
+        }
+        
+        // 发布帖子函数
+        function publishPost() {
+            console.log('========================================');
+            console.log('发布按钮被点击，开始发布过程');
+            
+            if (!postContent) {
+                console.error('❌ 内容输入框未找到:', document.getElementById('postContent'));
+                showStatus('请输入内容', 'error');
+                return;
+            }
+            
+            // 获取内容
+            const content = postContent.value.trim();
+            if (!content) {
+                console.warn('❌ 内容为空，发布失败');
+                showStatus('请输入内容', 'error');
+                return;
+            }
+            
+            // 获取当前选中的可见性选项
+            const selectedVisibility = document.querySelector('.visibility-option-simple.active');
+            const visibilityDuration = selectedVisibility ? selectedVisibility.dataset.duration : 'forever';
+            
+            console.log('✅ 准备发布内容:', content);
+            console.log('✅ 可见性时长:', visibilityDuration);
+            
+            // 模拟发布延迟
+            setTimeout(function() {
+                console.log('✅ 模拟发布延迟结束，开始处理发布');
+                
+                try {
+                    // 创建帖子对象
+                    const post = {
+                        id: Date.now(), // 使用时间戳作为唯一ID
+                        content: content,
+                        visibility: visibilityDuration,
+                        createdAt: new Date().toISOString(), // 保存发布时间
+                        isPublic: true, // 初始状态为公开
+                        images: [] // 可以在这里添加图片数据
+                    };
+                    
+                    console.log('✅ 创建帖子对象:', post);
+                    
+                    // 如果有上传的图片，添加到帖子对象中
+                    if (uploadedImage) {
+                        post.images.push({
+                            src: uploadedImage.src,
+                            name: uploadedImage.file.name,
+                            type: uploadedImage.file.type
+                        });
+                        console.log('✅ 添加图片到帖子:', post.images);
+                    } else {
+                        console.log('ℹ️ 没有上传图片');
+                    }
+                    
+                    // 模拟保存到localStorage
+                    savePostToLocalStorage(post);
+                    
+                    console.log('✅ 发布的内容已成功保存到localStorage');
+                    
+                    // 确保输入框和预览图已清空后再显示成功信息
+                    // 使用 requestAnimationFrame 确保DOM更新完成
+                    requestAnimationFrame(() => {
+                        // 再次确认清空（防止异步问题）
+                        if (postContent) {
+                            postContent.value = '';
+                        }
+                        if (imagePreview) {
+                            imagePreview.innerHTML = '';
+                            imagePreview.style.display = 'none';
+                        }
+                        // 重置上传图片变量
+                        uploadedImage = null;
+                        
+                        // 更新调试信息
+                        updateDebugInfo();
+                        
+                        // 显示成功信息
+                        showStatus('发布成功！输入框和预览图已清空', 'success');
+                        
+                        console.log('🎉 发布过程完成，所有步骤成功！');
+                    });
+                    
+                } catch (error) {
+                    console.error('❌ 发布过程中发生错误:', error);
+                    console.error('错误堆栈:', error.stack);
+                    showStatus('发布失败: ' + error.message, 'error');
+                }
+                
+            }, 1000);
+        }
+        
+        // 保存帖子到localStorage
+        function savePostToLocalStorage(post) {
+            console.log('开始保存帖子到localStorage...');
+            console.log('保存的帖子内容:', post);
+            
+            // 为帖子添加userId字段，使用当前用户ID
+            post.userId = '000001'; // 当前用户固定为000001
+            console.log('添加userId后:', post);
+            
+            // 获取现有的帖子
+            const existingPosts = JSON.parse(localStorage.getItem('posts')) || [];
+            console.log('保存前posts长度:', existingPosts.length);
+            
+            // 添加新帖子
+            existingPosts.push(post);
+            console.log('添加后posts长度:', existingPosts.length);
+            
+            // 保存回localStorage
+            localStorage.setItem('posts', JSON.stringify(existingPosts));
+            const savedPosts = JSON.parse(localStorage.getItem('posts'));
+            console.log('posts保存成功，当前长度:', savedPosts ? savedPosts.length : '失败');
+            
+            // 保存到userPosts，用于个人主页的发布历史
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            console.log('保存前userPosts长度:', userPosts.length);
+            
+            userPosts.push(post);
+            console.log('添加后userPosts长度:', userPosts.length);
+            
+            localStorage.setItem('userPosts', JSON.stringify(userPosts));
+            const savedUserPosts = JSON.parse(localStorage.getItem('userPosts'));
+            console.log('userPosts保存成功，当前长度:', savedUserPosts ? savedUserPosts.length : '失败');
+            
+            // 更新homeFeeds数组，用于首页信息流
+            const homeFeeds = JSON.parse(localStorage.getItem('homeFeeds')) || [];
+            console.log('保存前homeFeeds长度:', homeFeeds.length);
+            
+            // 只有公开帖子才添加到homeFeeds
+            if (post.isPublic) {
+                homeFeeds.push(post);
+                console.log('添加后homeFeeds长度:', homeFeeds.length);
+                
+                // 按时间排序，最新的在前面
+                homeFeeds.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                localStorage.setItem('homeFeeds', JSON.stringify(homeFeeds));
+                const savedHomeFeeds = JSON.parse(localStorage.getItem('homeFeeds'));
+                console.log('homeFeeds保存成功，当前长度:', savedHomeFeeds ? savedHomeFeeds.length : '失败');
+            } else {
+                console.log('帖子为非公开，不添加到homeFeeds');
+            }
+            
+            console.log('帖子保存到localStorage完成:', post);
+        }
+        
+        // 显示状态信息
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('publishStatus');
+            statusDiv.className = 'status ' + type;
+            statusDiv.textContent = message;
+        }
+    </script>
+</body>
+</html>

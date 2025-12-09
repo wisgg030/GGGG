@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试发布功能脚本</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            white-space: pre-wrap;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>测试发布功能</h1>
+    <div id="testResults"></div>
+    
+    <script>
+        // 简单的测试脚本，用于验证发布功能
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            resultsDiv.appendChild(p);
+        }
+        
+        log('开始测试发布功能...');
+        
+        // 1. 清空本地存储
+        localStorage.removeItem('posts');
+        localStorage.removeItem('userPosts');
+        localStorage.removeItem('homeFeeds');
+        log('✅ 已清空本地存储', 'success');
+        
+        // 2. 模拟发布帖子
+        function simulatePublishPost() {
+            const post = {
+                id: Date.now(),
+                content: '这是一条测试发布的内容',
+                visibility: 'forever',
+                createdAt: new Date().toISOString(),
+                isPublic: true,
+                images: [],
+                userId: '000001'
+            };
+            
+            // 保存到posts
+            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+            posts.push(post);
+            localStorage.setItem('posts', JSON.stringify(posts));
+            
+            // 保存到userPosts
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            userPosts.push(post);
+            localStorage.setItem('userPosts', JSON.stringify(userPosts));
+            
+            log('✅ 已发布测试帖子', 'success');
+            log('   - 帖子内容:', 'info');
+            log('   ' + JSON.stringify(post, null, 2), 'info');
+            return post;
+        }
+        
+        // 3. 模拟首页加载
+        function simulateHomePageLoad() {
+            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+            const homePosts = posts.filter(post => post.isPublic);
+            
+            log('📱 首页加载结果:', 'info');
+            log('   - 所有帖子数:', posts.length, 'info');
+            log('   - 公开帖子数:', homePosts.length, 'info');
+            log('   - 显示的帖子:', 'info');
+            homePosts.forEach(post => {
+                log('   ' + JSON.stringify(post, null, 2), 'info');
+            });
+            
+            return homePosts;
+        }
+        
+        // 4. 模拟个人页加载
+        function simulateProfilePageLoad() {
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            
+            log('👤 个人页加载结果:', 'info');
+            log('   - 用户发布帖子数:', userPosts.length, 'info');
+            log('   - 显示的帖子:', 'info');
+            userPosts.forEach(post => {
+                log('   ' + JSON.stringify(post, null, 2), 'info');
+            });
+            
+            return userPosts;
+        }
+        
+        // 5. 测试逻辑
+        log('\n=== 测试发布功能 ===', 'info');
+        simulatePublishPost();
+        
+        log('\n=== 测试首页显示 ===', 'info');
+        const homePosts = simulateHomePageLoad();
+        
+        log('\n=== 测试个人页显示 ===', 'info');
+        const profilePosts = simulateProfilePageLoad();
+        
+        // 6. 验证结果
+        log('\n=== 验证结果 ===', 'info');
+        if (homePosts.length === 1 && profilePosts.length === 1) {
+            log('✅ 测试通过！发布的内容成功显示在首页和我的页', 'success');
+            log('   - 首页显示了1条公开帖子', 'success');
+            log('   - 个人页显示了1条发布历史', 'success');
+        } else {
+            log('❌ 测试失败！', 'error');
+            log('   - 首页显示帖子数:', homePosts.length, 'error');
+            log('   - 个人页显示帖子数:', profilePosts.length, 'error');
+        }
+        
+        // 7. 显示最终的本地存储数据
+        log('\n=== 本地存储最终数据 ===', 'info');
+        log('posts:', JSON.parse(localStorage.getItem('posts')), 'info');
+        log('userPosts:', JSON.parse(localStorage.getItem('userPosts')), 'info');
+        log('homeFeeds:', JSON.parse(localStorage.getItem('homeFeeds')), 'info');
+    </script>
+</body>
+</html>

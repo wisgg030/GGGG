@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试修复效果</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="test-container" style="padding: 20px;">
+        <h2>测试纯文本发布效果</h2>
+        <div id="feed-item-container"></div>
+        <h2>测试带图片发布效果</h2>
+        <div id="feed-item-with-image-container"></div>
+    </div>
+
+    <script src="js/utils/common.js"></script>
+    <script src="js/page-specific/home.js"></script>
+    
+    <script>
+        // 测试纯文本发布
+        const textOnlyPost = {
+            id: "test1",
+            userId: "000001",
+            content: "这是一个纯文本发布的测试",
+            images: [],
+            timestamp: Date.now(),
+            likes: 0,
+            pats: 0,
+            favorites: 0
+        };
+
+        // 测试带图片发布（使用不存在的图片路径）
+        const postWithImage = {
+            id: "test2",
+            userId: "000001",
+            content: "这是一个带图片发布的测试",
+            images: [{ src: "assets/images/non-existent.jpg" }],
+            timestamp: Date.now(),
+            likes: 0,
+            pats: 0,
+            favorites: 0
+        };
+
+        // 创建并添加测试项
+        const feedItemContainer = document.getElementById('feed-item-container');
+        const feedItemWithImageContainer = document.getElementById('feed-item-with-image-container');
+
+        // 调用我们修改过的createFeedItem函数
+        const textOnlyItem = createFeedItem(textOnlyPost);
+        const withImageItem = createFeedItem(postWithImage);
+
+        feedItemContainer.appendChild(textOnlyItem);
+        feedItemWithImageContainer.appendChild(withImageItem);
+
+        // 检查样式是否正确应用
+        console.log('纯文本发布样式类:', textOnlyItem.className);
+        console.log('带图片发布样式类:', withImageItem.className);
+    </script>
+</body>
+</html>

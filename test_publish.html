@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试发布功能</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        #testResults {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>测试发布功能</h1>
+    
+    <div class="test-section">
+        <h2>1. 测试发布内容</h2>
+        <button onclick="testPublishPost()">发布测试内容</button>
+        <button onclick="clearLocalStorage()">清空本地存储</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 验证存储数据</h2>
+        <button onclick="checkLocalStorageData()">检查本地存储数据</button>
+        <div id="localStorageData"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 模拟首页加载</h2>
+        <button onclick="simulateHomePageLoad()">模拟首页加载</button>
+        <div id="homePagePosts"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 模拟个人页加载</h2>
+        <button onclick="simulateProfilePageLoad()">模拟个人页加载</button>
+        <div id="profilePagePosts"></div>
+    </div>
+    
+    <div id="testResults"></div>
+    
+    <script src="js/page-specific/publish.js"></script>
+    <script src="js/page-specific/home.js"></script>
+    <script src="js/page-specific/profile.js"></script>
+    
+    <script>
+        // 测试发布帖子
+        function testPublishPost() {
+            // 模拟设置发布内容
+            const postContent = document.createElement('textarea');
+            postContent.id = 'postContent';
+            postContent.value = '这是一条测试发布的内容，用于验证首页和我的页的显示功能。';
+            document.body.appendChild(postContent);
+            
+            // 模拟设置可见性选项
+            const visibilityOptions = document.createElement('div');
+            visibilityOptions.innerHTML = `
+                <div class="visibility-option-simple active" data-duration="forever">永久可见</div>
+            `;
+            document.body.appendChild(visibilityOptions);
+            
+            // 调用发布函数
+            try {
+                window.publishPost();
+                logResult('✅ 发布测试内容成功', 'success');
+            } catch (error) {
+                logResult(`❌ 发布测试内容失败: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                // 清理临时元素
+                document.body.removeChild(postContent);
+                document.body.removeChild(visibilityOptions);
+            }
+        }
+        
+        // 检查本地存储数据
+        function checkLocalStorageData() {
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const homeFeeds = JSON.parse(localStorage.getItem('homeFeeds') || '[]');
+            const userPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+            
+            const dataDiv = document.getElementById('localStorageData');
+            dataDiv.innerHTML = `
+                <h3>本地存储数据:</h3>
+                <p><strong>posts 数量:</strong> ${posts.length}</p>
+                <p><strong>homeFeeds 数量:</strong> ${homeFeeds.length}</p>
+                <p><strong>userPosts 数量:</strong> ${userPosts.length}</p>
+                
+                <h4>最新帖子内容:</h4>
+                ${posts.length > 0 ? `<pre>${JSON.stringify(posts[posts.length - 1], null, 2)}</pre>` : '<p>无数据</p>'}
+            `;
+            
+            logResult('✅ 本地存储数据检查完成', 'success');
+        }
+        
+        // 模拟首页加载
+        function simulateHomePageLoad() {
+            const homeDiv = document.getElementById('homePagePosts');
+            homeDiv.innerHTML = '<h3>首页显示的帖子:</h3>';
+            
+            // 模拟首页加载逻辑
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const homePosts = posts.filter(post => post.isPublic);
+            
+            if (homePosts.length === 0) {
+                homeDiv.innerHTML += '<p>首页没有公开帖子</p>';
+            } else {
+                homePosts.forEach(post => {
+                    homeDiv.innerHTML += `
+                        <div style="margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 5px;">
+                            <p><strong>内容:</strong> ${post.content}</p>
+                            <p><strong>可见性:</strong> ${post.visibility}</p>
+                            <p><strong>发布时间:</strong> ${new Date(post.createdAt).toLocaleString()}</p>
+                            <p><strong>是否公开:</strong> ${post.isPublic ? '是' : '否'}</p>
+                        </div>
+                    `;
+                });
+            }
+            
+            logResult('✅ 首页加载模拟完成', 'success');
+        }
+        
+        // 模拟个人页加载
+        function simulateProfilePageLoad() {
+            const profileDiv = document.getElementById('profilePagePosts');
+            profileDiv.innerHTML = '<h3>个人页显示的发布历史:</h3>';
+            
+            // 模拟个人页加载逻辑
+            const userPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+            
+            if (userPosts.length === 0) {
+                profileDiv.innerHTML += '<p>个人页没有发布历史</p>';
+            } else {
+                userPosts.forEach(post => {
+                    profileDiv.innerHTML += `
+                        <div style="margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 5px;">
+                            <p><strong>内容:</strong> ${post.content}</p>
+                            <p><strong>可见性:</strong> ${post.visibility}</p>
+                            <p><strong>发布时间:</strong> ${new Date(post.createdAt).toLocaleString()}</p>
+                        </div>
+                    `;
+                });
+            }
+            
+            logResult('✅ 个人页加载模拟完成', 'success');
+        }
+        
+        // 清空本地存储
+        function clearLocalStorage() {
+            if (confirm('确定要清空所有本地存储数据吗？')) {
+                localStorage.removeItem('posts');
+                localStorage.removeItem('homeFeeds');
+                localStorage.removeItem('userPosts');
+                logResult('✅ 本地存储已清空', 'success');
+                
+                // 刷新所有显示
+                document.getElementById('localStorageData').innerHTML = '';
+                document.getElementById('homePagePosts').innerHTML = '';
+                document.getElementById('profilePagePosts').innerHTML = '';
+            }
+        }
+        
+        // 记录测试结果
+        function logResult(message, type) {
+            const resultsDiv = document.getElementById('testResults');
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            resultsDiv.appendChild(p);
+            
+            // 滚动到最新结果
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

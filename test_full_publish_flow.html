@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试完整发布流程</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>测试完整发布流程</h1>
+        
+        <div>
+            <h2>1. 发布测试内容</h2>
+            <textarea id="testContent" placeholder="请输入测试内容"></textarea>
+            <button onclick="testPublish()">发布测试内容</button>
+        </div>
+        
+        <div>
+            <h2>2. 查看发布历史</h2>
+            <button onclick="window.location.href='profile.html'">查看个人主页</button>
+        </div>
+        
+        <div>
+            <h2>3. 管理测试数据</h2>
+            <button onclick="clearTestData()">清空测试数据</button>
+            <button onclick="addTestData()">添加测试数据</button>
+        </div>
+        
+        <div id="testResult" class="result"></div>
+    </div>
+
+    <script>
+        // 显示测试结果
+        function showResult(message, isSuccess = true) {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.className = `result ${isSuccess ? 'success' : 'error'}`;
+            resultDiv.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+        }
+        
+        // 测试发布功能
+        function testPublish() {
+            const content = document.getElementById('testContent').value;
+            if (!content) {
+                showResult('请输入测试内容', false);
+                return;
+            }
+            
+            try {
+                // 模拟发布帖子
+                const post = {
+                    id: Date.now(),
+                    content: content,
+                    images: [],
+                    visibility: 'forever',
+                    createdAt: new Date().toISOString(),
+                    isPublic: true,
+                    expireAt: null,
+                    likes: 0,
+                    pats: 0,
+                    favorites: 0
+                };
+                
+                // 保存到localStorage
+                saveTestPost(post);
+                
+                showResult('测试内容发布成功！');
+            } catch (error) {
+                showResult(`发布失败: ${error.message}`, false);
+                console.error('发布失败:', error);
+            }
+        }
+        
+        // 保存测试帖子到localStorage
+        function saveTestPost(post) {
+            console.log('开始保存测试帖子到localStorage...');
+            console.log('保存的帖子内容:', post);
+            
+            // 为帖子添加userId字段
+            post.userId = '000001';
+            console.log('添加userId后:', post);
+            
+            // 保存到posts
+            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+            posts.push(post);
+            localStorage.setItem('posts', JSON.stringify(posts));
+            console.log('posts保存成功，当前长度:', posts.length);
+            
+            // 保存到userPosts
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            userPosts.push(post);
+            localStorage.setItem('userPosts', JSON.stringify(userPosts));
+            console.log('userPosts保存成功，当前长度:', userPosts.length);
+            
+            // 保存到homeFeeds
+            if (post.isPublic) {
+                const homeFeeds = JSON.parse(localStorage.getItem('homeFeeds')) || [];
+                homeFeeds.push(post);
+                localStorage.setItem('homeFeeds', JSON.stringify(homeFeeds));
+                console.log('homeFeeds保存成功，当前长度:', homeFeeds.length);
+            }
+            
+            console.log('测试帖子保存完成:', post);
+        }
+        
+        // 清空测试数据
+        function clearTestData() {
+            localStorage.removeItem('posts');
+            localStorage.removeItem('userPosts');
+            localStorage.removeItem('homeFeeds');
+            showResult('测试数据已清空');
+        }
+        
+        // 添加测试数据
+        function addTestData() {
+            const testPosts = [
+                {
+                    id: 'test-post-1',
+                    userId: '000001',
+                    content: '这是第一条测试发布的内容',
+                    images: [],
+                    visibility: 'forever',
+                    createdAt: new Date().toISOString(),
+                    isPublic: true,
+                    expireAt: null,
+                    likes: 0,
+                    pats: 0,
+                    favorites: 0
+                },
+                {
+                    id: 'test-post-2',
+                    userId: '000001',
+                    content: '这是第二条测试发布的内容',
+                    images: [{ src: 'https://via.placeholder.com/150' }],
+                    visibility: 'forever',
+                    createdAt: new Date(Date.now() + 1000).toISOString(),
+                    isPublic: true,
+                    expireAt: null,
+                    likes: 0,
+                    pats: 0,
+                    favorites: 0
+                }
+            ];
+            
+            // 保存到localStorage
+            localStorage.setItem('userPosts', JSON.stringify(testPosts));
+            localStorage.setItem('posts', JSON.stringify(testPosts));
+            localStorage.setItem('homeFeeds', JSON.stringify(testPosts.filter(p => p.isPublic)));
+            
+            showResult('测试数据已添加');
+        }
+    </script>
+</body>
+</html>

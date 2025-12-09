@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed尺寸比较测试</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* 测试页面专用样式 */
+        .test-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+            background-color: #fff;
+        }
+        .test-section {
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #374151;
+        }
+        /* 临时调整样式以便在测试页面中更好地展示 */
+        .test-container .feed-item,
+        .test-container .feed-item-text-only {
+            height: 600px; /* 固定高度以便比较 */
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Feed尺寸比较测试</h1>
+        
+        <div class="test-section">
+            <div class="test-title">图片信息流</div>
+            <div class="feed-item">
+                <div class="feed-image-container">
+                    <div style="width: calc(100% - 40px); height: calc(100% - 80px); background-color: #f3f4f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #6b7280;">
+                        Feed Image
+                    </div>
+                </div>
+                <div class="feed-interactions">
+                    <div class="interaction-btn">
+                        <span>拍拍</span>
+                    </div>
+                    <div class="interaction-btn">
+                        <span>+1</span>
+                    </div>
+                    <div class="interaction-btn">
+                        <span>收藏</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">纯文本信息流</div>
+            <div class="feed-item-text-only">
+                <div class="feed-info-text-only">
+                    <div class="feed-user-id">000001</div>
+                    <div class="feed-content">1344</div>
+                </div>
+                <div class="feed-interactions-text-only">
+                    <div class="interaction-btn">
+                        <span>拍拍</span>
+                    </div>
+                    <div class="interaction-btn">
+                        <span>+1</span>
+                    </div>
+                    <div class="interaction-btn">
+                        <span>收藏</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

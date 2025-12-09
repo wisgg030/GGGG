@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试发布功能</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>测试发布功能</h1>
+    
+    <div class="test-section">
+        <h2>1. 测试发布功能</h2>
+        <button onclick="testPublish()">执行发布测试</button>
+        <div id="publishResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 查看localStorage数据</h2>
+        <button onclick="showLocalStorage()">查看数据</button>
+        <div id="storageResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 清空测试数据</h2>
+        <button onclick="clearTestData()" style="background-color: #f44336;">清空数据</button>
+        <div id="clearResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 导航到页面</h2>
+        <p><a href="home.html" target="_blank">首页</a> | <a href="profile.html" target="_blank">个人主页</a> | <a href="publish.html" target="_blank">发布页</a></p>
+    </div>
+    
+    <script>
+        // 测试发布功能
+        function testPublish() {
+            const resultDiv = document.getElementById('publishResult');
+            resultDiv.innerHTML = '<span style="color: blue;">正在执行发布测试...</span>';
+            
+            // 模拟发布内容
+            setTimeout(() => {
+                try {
+                    // 创建测试帖子
+                    const posts = [
+                        {
+                            id: Date.now(),
+                            userId: '000001',
+                            content: '测试发布内容：这是一条纯文本动态',
+                            visibility: 'forever',
+                            createdAt: new Date().toISOString(),
+                            isPublic: true,
+                            images: []
+                        },
+                        {
+                            id: Date.now() + 1,
+                            userId: '000001',
+                            content: '测试发布内容：这是一条带图片的动态',
+                            visibility: 'forever',
+                            createdAt: new Date().toISOString(),
+                            isPublic: true,
+                            images: [{
+                                src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+                                name: 'test-image.png',
+                                type: 'image/png'
+                            }]
+                        }
+                    ];
+                    
+                    // 保存到localStorage
+                    posts.forEach(post => {
+                        // 保存到posts
+                        const existingPosts = JSON.parse(localStorage.getItem('posts')) || [];
+                        existingPosts.push(post);
+                        localStorage.setItem('posts', JSON.stringify(existingPosts));
+                        
+                        // 保存到userPosts
+                        const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+                        userPosts.push(post);
+                        localStorage.setItem('userPosts', JSON.stringify(userPosts));
+                        
+                        // 只有公开帖子才保存到homeFeeds
+                        if (post.isPublic) {
+                            const homeFeeds = JSON.parse(localStorage.getItem('homeFeeds')) || [];
+                            homeFeeds.push(post);
+                            // 按时间排序
+                            homeFeeds.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                            localStorage.setItem('homeFeeds', JSON.stringify(homeFeeds));
+                        }
+                    });
+                    
+                    resultDiv.innerHTML = '<span class="success">✅ 发布测试成功！</span>\n';
+                    resultDiv.innerHTML += '已发布2条测试内容：\n';
+                    posts.forEach((post, index) => {
+                        resultDiv.innerHTML += `\n${index + 1}. ${post.content}`;
+                        resultDiv.innerHTML += `\n   - ID: ${post.id}`;
+                        resultDiv.innerHTML += `\n   - 时间: ${new Date(post.createdAt).toLocaleString()}`;
+                        resultDiv.innerHTML += `\n   - 公开: ${post.isPublic ? '是' : '否'}`;
+                        resultDiv.innerHTML += `\n   - 图片: ${post.images.length > 0 ? '有' : '无'}`;
+                    });
+                    resultDiv.innerHTML += '\n\n请刷新首页和个人主页查看效果！';
+                    
+                } catch (error) {
+                    resultDiv.innerHTML = `<span class="error">❌ 测试失败：${error.message}</span>`;
+                }
+            }, 500);
+        }
+        
+        // 查看localStorage数据
+        function showLocalStorage() {
+            const resultDiv = document.getElementById('storageResult');
+            
+            try {
+                const data = {
+                    posts: JSON.parse(localStorage.getItem('posts') || '[]'),
+                    userPosts: JSON.parse(localStorage.getItem('userPosts') || '[]'),
+                    homeFeeds: JSON.parse(localStorage.getItem('homeFeeds') || '[]')
+                };
+                
+                let output = 'localStorage数据：\n\n';
+                
+                output += `posts (总数: ${data.posts.length})\n`;
+                output += '-'.repeat(40) + '\n';
+                data.posts.slice(-3).reverse().forEach((post, index) => {
+                    output += `${index + 1}. ${post.content}\n`;
+                });
+                
+                output += '\nuserPosts (总数: ' + data.userPosts.length + ')\n';
+                output += '-'.repeat(40) + '\n';
+                data.userPosts.slice(-3).reverse().forEach((post, index) => {
+                    output += `${index + 1}. ${post.content}\n`;
+                });
+                
+                output += '\nhomeFeeds (总数: ' + data.homeFeeds.length + ')\n';
+                output += '-'.repeat(40) + '\n';
+                data.homeFeeds.slice(0, 3).forEach((post, index) => {
+                    output += `${index + 1}. ${post.content}\n`;
+                });
+                
+                resultDiv.innerHTML = output;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ 查看失败：${error.message}</span>`;
+            }
+        }
+        
+        // 清空测试数据
+        function clearTestData() {
+            const resultDiv = document.getElementById('clearResult');
+            
+            if (confirm('确定要清空所有测试数据吗？')) {
+                try {
+                    localStorage.removeItem('posts');
+                    localStorage.removeItem('userPosts');
+                    localStorage.removeItem('homeFeeds');
+                    localStorage.removeItem('feedInteractions');
+                    localStorage.removeItem('favoriteFeeds');
+                    
+                    resultDiv.innerHTML = '<span class="success">✅ 数据已清空！</span>';
+                    
+                    // 清空其他结果
+                    document.getElementById('publishResult').innerHTML = '';
+                    document.getElementById('storageResult').innerHTML = '';
+                    
+                } catch (error) {
+                    resultDiv.innerHTML = `<span class="error">❌ 清空失败：${error.message}</span>`;
+                }
+            }
+        }
+        
+        // 页面加载时显示数据
+        window.onload = function() {
+            showLocalStorage();
+        };
+    </script>
+</body>
+</html>

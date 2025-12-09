@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布功能修复验证</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .data-viewer {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .data-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 3px;
+            border: 1px solid #e9ecef;
+        }
+        .data-item h4 {
+            margin-top: 0;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>发布功能修复验证</h1>
+    
+    <div class="section">
+        <h2>1. 测试前准备</h2>
+        <button onclick="clearAllData()">清空所有数据</button>
+        <button onclick="checkData()">检查当前数据</button>
+        <div id="testLog"></div>
+    </div>
+    
+    <div class="section">
+        <h2>2. 验证步骤</h2>
+        <ol>
+            <li>点击<a href="publish.html" target="_blank">发布页面</a>，输入内容并点击发布</li>
+            <li>发布完成后检查：
+                <ul>
+                    <li>发布页是否恢复到初始状态</li>
+                    <li>发布的内容是否出现在<a href="home.html" target="_blank">信息流</a></li>
+                    <li>发布的内容是否出现在<a href="profile.html" target="_blank">发布历史</a></li>
+                </ul>
+            </li>
+            <li>返回此页面，点击下方按钮验证数据</li>
+        </ol>
+    </div>
+    
+    <div class="section">
+        <h2>3. 数据验证</h2>
+        <button onclick="verifyPublishFix()">验证修复效果</button>
+        <div id="verificationResult"></div>
+    </div>
+    
+    <div class="section">
+        <h2>4. 当前数据状态</h2>
+        <div id="currentData"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('testLog');
+            const logItem = document.createElement('div');
+            logItem.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            if (type === 'error') {
+                logItem.className = 'error';
+            } else if (type === 'success') {
+                logItem.className = 'success';
+            }
+            logDiv.appendChild(logItem);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function clearAllData() {
+            localStorage.removeItem('posts');
+            localStorage.removeItem('userPosts');
+            localStorage.removeItem('homeFeeds');
+            log('所有数据已清空', 'success');
+            checkData();
+        }
+        
+        function checkData() {
+            const currentDataDiv = document.getElementById('currentData');
+            let html = '';
+            
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const userPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+            const homeFeeds = JSON.parse(localStorage.getItem('homeFeeds') || '[]');
+            
+            html += '<h4>posts: ' + posts.length + '条</h4>';
+            posts.forEach(post => {
+                html += `<div class="data-item">
+                    <h4>ID: ${post.id}</h4>
+                    <p>内容: ${post.content}</p>
+                    <p>公开: ${post.isPublic ? '是' : '否'}</p>
+                    <p>时间: ${new Date(post.createdAt).toLocaleString()}</p>
+                </div>`;
+            });
+            
+            html += '<h4>userPosts: ' + userPosts.length + '条</h4>';
+            html += '<h4>homeFeeds: ' + homeFeeds.length + '条</h4>';
+            
+            currentDataDiv.innerHTML = html;
+        }
+        
+        function verifyPublishFix() {
+            const resultDiv = document.getElementById('verificationResult');
+            let result = '<h3>验证结果:</h3>';
+            
+            // 检查1: 数据是否正确保存
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const userPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+            
+            if (posts.length > 0) {
+                result += '<div class="success">✓ 数据已正确保存到localStorage</div>';
+            } else {
+                result += '<div class="error">✗ 数据未保存到localStorage</div>';
+            }
+            
+            // 检查2: userPosts是否与posts一致
+            if (posts.length === userPosts.length) {
+                result += '<div class="success">✓ userPosts与posts数量一致</div>';
+            } else {
+                result += `<div class="error">✗ userPosts(${userPosts.length})与posts(${posts.length})数量不一致</div>`;
+            }
+            
+            // 检查3: 最新帖子是否是公开的
+            if (posts.length > 0 && posts[posts.length - 1].isPublic) {
+                result += '<div class="success">✓ 最新帖子是公开的</div>';
+            } else {
+                result += '<div class="error">✗ 最新帖子不是公开的</div>';
+            }
+            
+            resultDiv.innerHTML = result;
+            checkData();
+        }
+        
+        // 页面加载时自动检查数据
+        window.onload = function() {
+            checkData();
+        };
+    </script>
+</body>
+</html>

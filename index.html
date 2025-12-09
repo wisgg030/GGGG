@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页 - Feeds流</title>
+    <link rel="stylesheet" href="css/styles.css">
+
+</head>
+<body>
+    <div class="mini-program-container">
+        <!-- 固定导航条 -->
+        <div class="fixed-nav">
+            <div class="fixed-eye">👀</div>
+        </div>
+        <!-- Feeds流容器 -->
+        <div class="feeds-container" id="feedsContainer">
+            <!-- Feed 1 -->
+            <div class="feed-item-text-only">
+                <div class="feed-info-text-only">
+                    <div class="feed-user-id">用户001</div>
+                    <div class="feed-content">这是一段纯文本内容，来自用户001</div>
+                </div>
+            </div>
+
+            <!-- Feed 2 -->
+            <div class="feed-item-text-only">
+                <div class="feed-info-text-only">
+                    <div class="feed-user-id">用户002</div>
+                    <div class="feed-content">这是用户002分享的内容</div>
+                </div>
+            </div>
+
+            <!-- Feed 3 -->
+            <div class="feed-item-text-only">
+                <div class="feed-info-text-only">
+                    <div class="feed-user-id">用户003</div>
+                    <div class="feed-content">大家好，这是用户003的分享</div>
+                </div>
+            </div>
+
+            <!-- Feed 4 -->
+            <div class="feed-item-text-only">
+                <div class="feed-info-text-only">
+                    <div class="feed-user-id">用户004</div>
+                    <div class="feed-content">这里是用户004的信息流内容</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <div class="bottom-nav-item active">
+                <span>首页</span>
+            </div>
+            <div class="bottom-nav-item" onclick="window.location.href='publish.html'">
+                <span>发布</span>
+            </div>
+            <div class="bottom-nav-item" onclick="window.location.href='ai-chat.html'">
+                <span>聊聊</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/page-specific/home.js"></script>
+    
+
+</body>
+</html>

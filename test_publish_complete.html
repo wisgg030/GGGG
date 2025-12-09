@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布功能完整测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            margin-top: 0;
+            color: #555;
+        }
+        .publish-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .clear-btn {
+            background: #f44336;
+        }
+        .clear-btn:hover {
+            background: #d32f2f;
+        }
+        .post-item {
+            margin: 10px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+        .post-meta {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        #testResults {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 5px;
+            border: 1px solid #c8e6c9;
+        }
+        .success {
+            color: #2e7d32;
+        }
+        .error {
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <h1>发布功能完整测试</h1>
+    
+    <div class="test-section">
+        <h2>1. 发布新内容</h2>
+        <div class="publish-form">
+            <textarea id="postContent" placeholder="请输入要发布的内容..."></textarea>
+            <button onclick="publishPost()">发布</button>
+            <button class="clear-btn" onclick="clearAllData()">清空所有数据</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 首页预览</h2>
+        <div id="homeFeed"><p>首页内容将在此显示...</p></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 我的页预览（发布历史）</h2>
+        <div id="profileFeed"><p>发布历史将在此显示...</p></div>
+    </div>
+    
+    <div id="testResults">
+        <p>测试结果将在此显示...</p>
+    </div>
+    
+    <script>
+        // 日志记录函数
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            resultsDiv.appendChild(p);
+            // 滚动到底部
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        // 发布帖子函数
+        function publishPost() {
+            const content = document.getElementById('postContent').value.trim();
+            if (!content) {
+                log('请输入内容再发布！', 'error');
+                return;
+            }
+            
+            // 创建帖子对象
+            const post = {
+                id: Date.now(),
+                content: content,
+                visibility: 'forever',
+                createdAt: new Date().toISOString(),
+                isPublic: true,
+                images: [],
+                userId: '000001'
+            };
+            
+            // 保存到localStorage
+            // 1. 保存到posts
+            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+            posts.push(post);
+            localStorage.setItem('posts', JSON.stringify(posts));
+            
+            // 2. 保存到userPosts
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            userPosts.push(post);
+            localStorage.setItem('userPosts', JSON.stringify(userPosts));
+            
+            log(`✅ 成功发布内容: "${content.substring(0, 20)}${content.length > 20 ? '...' : ''}"`, 'success');
+            
+            // 清空输入框
+            document.getElementById('postContent').value = '';
+            
+            // 更新首页和个人页预览
+            updateHomeFeed();
+            updateProfileFeed();
+        }
+        
+        // 更新首页预览
+        function updateHomeFeed() {
+            const homeFeed = document.getElementById('homeFeed');
+            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+            const publicPosts = posts.filter(post => post.isPublic);
+            
+            if (publicPosts.length === 0) {
+                homeFeed.innerHTML = '<p>首页没有公开帖子</p>';
+                return;
+            }
+            
+            homeFeed.innerHTML = '';
+            publicPosts.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post-item';
+                postDiv.innerHTML = `
+                    <div class="post-content">${post.content}</div>
+                    <div class="post-meta">
+                        发布时间: ${new Date(post.createdAt).toLocaleString()} | 
+                        可见性: ${post.visibility} | 
+                        状态: ${post.isPublic ? '公开' : '私密'}
+                    </div>
+                `;
+                homeFeed.appendChild(postDiv);
+            });
+            
+            log(`📱 首页已更新，显示 ${publicPosts.length} 条公开帖子`, 'success');
+        }
+        
+        // 更新个人页预览
+        function updateProfileFeed() {
+            const profileFeed = document.getElementById('profileFeed');
+            const userPosts = JSON.parse(localStorage.getItem('userPosts')) || [];
+            
+            if (userPosts.length === 0) {
+                profileFeed.innerHTML = '<p>还没有发布任何内容</p>';
+                return;
+            }
+            
+            profileFeed.innerHTML = '';
+            userPosts.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post-item';
+                postDiv.innerHTML = `
+                    <div class="post-content">${post.content}</div>
+                    <div class="post-meta">
+                        发布时间: ${new Date(post.createdAt).toLocaleString()} | 
+                        可见性: ${post.visibility}
+                    </div>
+                `;
+                profileFeed.appendChild(postDiv);
+            });
+            
+            log(`👤 个人页已更新，显示 ${userPosts.length} 条发布历史`, 'success');
+        }
+        
+        // 清空所有数据
+        function clearAllData() {
+            if (confirm('确定要清空所有发布数据吗？')) {
+                localStorage.removeItem('posts');
+                localStorage.removeItem('userPosts');
+                localStorage.removeItem('homeFeeds');
+                
+                // 更新预览
+                updateHomeFeed();
+                updateProfileFeed();
+                
+                log('✅ 已清空所有本地存储数据', 'success');
+            }
+        }
+        
+        // 页面加载时初始化
+        window.onload = function() {
+            log('页面加载完成，开始初始化...');
+            updateHomeFeed();
+            updateProfileFeed();
+            log('✅ 首页和个人页预览已初始化', 'success');
+        };
+    </script>
+</body>
+</html>
